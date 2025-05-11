@@ -81,33 +81,37 @@ public class DatabaseLoader {
   private final List<Object[]> PERSON_INFO = new ArrayList<>();
 
   private DatabaseLoader() throws Exception {
-    String csvFilePath = "C:\\Users\\vimuk\\Downloads\\calcite_ready";
+    String csvFilePath = "C:\\JOB_dataset";
     if (!checkAllCsvFilesExists(csvFilePath)) {
       throw new Exception("Check for necessary CSV files failed. One or more necessary CSV files " +
           "are missing");
     }
     loadDataToArrayLists(csvFilePath);
-    System.out.println("AKA_NAME" + AKA_NAME.size());
-    System.out.println("AKA_TITLE" + AKA_TITLE.size());
-    System.out.println("CAST_INFO" + CAST_INFO.size());
-    System.out.println("CHAR_NAME" + CHAR_NAME.size());
-    System.out.println("COMP_CAST_TYPE" + COMP_CAST_TYPE.size());
-    System.out.println("COMPANY_NAME" + COMPANY_NAME.size());
-    System.out.println("COMPANY_TYPE" + COMPANY_TYPE.size());
-    System.out.println("COMPLETE_CAST" + COMPLETE_CAST.size());
-    System.out.println("INFO_TYPE" + INFO_TYPE.size());
-    System.out.println("KEYWORD" + KEYWORD.size());
-    System.out.println("KIND_TYPE" + KIND_TYPE.size());
-    System.out.println("LINK_TYPE" + LINK_TYPE.size());
-    System.out.println("MOVIE_COMPANIES" + MOVIE_COMPANIES.size());
-    System.out.println("MOVIE_INFO_IDX" + MOVIE_INFO_IDX.size());
-    System.out.println("MOVIE_KEYWORD" + MOVIE_KEYWORD.size());
-    System.out.println("MOVIE_LINK" + MOVIE_LINK.size());
-    System.out.println("NAME" + NAME.size());
-    System.out.println("ROLE_TYPE" + ROLE_TYPE.size());
-    System.out.println("TITLE" + TITLE.size());
-    System.out.println("MOVIE_INFO" + MOVIE_INFO.size());
-    System.out.println("PERSON_INFO" + PERSON_INFO.size());
+    printSizesOfArrayLists();
+  }
+
+  private void printSizesOfArrayLists(){
+    System.out.println("AKA_NAME: " + AKA_NAME.size());
+    System.out.println("AKA_TITLE: " + AKA_TITLE.size());
+    System.out.println("CAST_INFO: " + CAST_INFO.size());
+    System.out.println("CHAR_NAME: " + CHAR_NAME.size());
+    System.out.println("COMP_CAST_TYPE: " + COMP_CAST_TYPE.size());
+    System.out.println("COMPANY_NAME: " + COMPANY_NAME.size());
+    System.out.println("COMPANY_TYPE: " + COMPANY_TYPE.size());
+    System.out.println("COMPLETE_CAST: " + COMPLETE_CAST.size());
+    System.out.println("INFO_TYPE: " + INFO_TYPE.size());
+    System.out.println("KEYWORD: " + KEYWORD.size());
+    System.out.println("KIND_TYPE: " + KIND_TYPE.size());
+    System.out.println("LINK_TYPE: " + LINK_TYPE.size());
+    System.out.println("MOVIE_COMPANIES: " + MOVIE_COMPANIES.size());
+    System.out.println("MOVIE_INFO_IDX: " + MOVIE_INFO_IDX.size());
+    System.out.println("MOVIE_KEYWORD: " + MOVIE_KEYWORD.size());
+    System.out.println("MOVIE_LINK: " + MOVIE_LINK.size());
+    System.out.println("NAME: " + NAME.size());
+    System.out.println("ROLE_TYPE: " + ROLE_TYPE.size());
+    System.out.println("TITLE: " + TITLE.size());
+    System.out.println("MOVIE_INFO: " + MOVIE_INFO.size());
+    System.out.println("PERSON_INFO: " + PERSON_INFO.size());
   }
 
   public static DatabaseLoader getInstance() throws Exception {

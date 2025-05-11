@@ -89,7 +89,7 @@ public class EndToEndExampleBindable {
   }
 
   public static void main(String[] args) throws Exception {
-    new EndToEndExampleBindable().example();
+    new EndToEndExampleBindable().example1();
   }
 
   public void example2() throws Exception {
