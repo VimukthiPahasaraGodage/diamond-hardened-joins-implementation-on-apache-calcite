@@ -118,10 +118,6 @@ public class DatabaseLoader {
     return databaseLoader;
   }
 
-  public static void main(String[] args) throws Exception {
-    DatabaseLoader databaseLoader1 = DatabaseLoader.getInstance();
-  }
-
   private void loadDataToAkaName(String csvFilePath) {
     try (CSVReader reader = new CSVReaderBuilder(new FileReader(csvFilePath + "\\aka_name.csv"))
         .withCSVParser(new CSVParserBuilder().withSeparator(',').build())
