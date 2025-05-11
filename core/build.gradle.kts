@@ -75,6 +75,7 @@ dependencies {
     implementation("commons-io:commons-io")
     implementation("org.codehaus.janino:commons-compiler")
     implementation("org.codehaus.janino:janino")
+    implementation("com.opencsv:opencsv:5.10")
     annotationProcessor("org.immutables:value")
     compileOnly("org.immutables:value-annotations")
     compileOnly("com.google.code.findbugs:jsr305")
