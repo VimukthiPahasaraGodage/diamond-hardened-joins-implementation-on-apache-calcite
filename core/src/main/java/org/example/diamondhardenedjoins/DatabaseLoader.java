@@ -149,6 +149,7 @@ public class DatabaseLoader {
           System.err.println("Skipping malformed line in aka_name.csv. Line number: " + lineNumber + " Total lines skipped: " + totalLinesSkipped);
         }
       }
+      System.out.println("Finished loading data to AKA_NAME");
     } catch (Exception e) {
       System.out.println("Unexpected error occurred while loading data to AKA_NAME" + e.getMessage());
     }
@@ -185,7 +186,7 @@ public class DatabaseLoader {
           System.err.println("Skipping malformed line in aka_title.csv. Line number: " + lineNumber + " Total lines skipped: " + totalLinesSkipped);
         }
       }
-
+      System.out.println("Finished loading data to AKA_TITLE");
     } catch (Exception e) {
       System.out.println("Unexpected error occurred while loading data to AKA_TITLE" + e.getMessage());
     }
@@ -217,7 +218,7 @@ public class DatabaseLoader {
           System.err.println("Skipping malformed line in cast_info.csv. Line number: " + lineNumber + " Total lines skipped: " + totalLinesSkipped);
         }
       }
-
+      System.out.println("Finished loading data to CAST_INFO");
     } catch (Exception e) {
       System.out.println("Unexpected error occurred while loading data to CAST_INFO" + e.getMessage());
     }
@@ -249,7 +250,7 @@ public class DatabaseLoader {
           System.err.println("Skipping malformed line in char_name.csv. Line number: " + lineNumber + " Total lines skipped: " + totalLinesSkipped);
         }
       }
-
+      System.out.println("Finished loading data to CHAR_NAME");
     } catch (Exception e) {
       System.out.println("Unexpected error occurred while loading data to CHAR_NAME" + e.getMessage());
     }
@@ -277,7 +278,7 @@ public class DatabaseLoader {
           System.err.println("Skipping malformed line in comp_cast_type.csv. Line number: " + lineNumber + " Total lines skipped: " + totalLinesSkipped);
         }
       }
-
+      System.out.println("Finished loading data to COMP_CAST_TYPE");
     } catch (Exception e) {
       System.out.println("Unexpected error occurred while loading data to COMP_CAST_TYPE" + e.getMessage());
     }
@@ -309,7 +310,7 @@ public class DatabaseLoader {
           System.err.println("Skipping malformed line in company_name.csv. Line number: " + lineNumber + " Total lines skipped: " + totalLinesSkipped);
         }
       }
-
+      System.out.println("Finished loading data to COMPANY_NAME");
     } catch (Exception e) {
       System.out.println("Unexpected error occurred while loading data to COMPANY_NAME" + e.getMessage());
     }
@@ -336,7 +337,7 @@ public class DatabaseLoader {
           System.err.println("Skipping malformed line in company_type.csv. Line number: " + lineNumber + " Total lines skipped: " + totalLinesSkipped);
         }
       }
-
+      System.out.println("Finished loading data to COMPANY_TYPE");
     } catch (Exception e) {
       System.out.println("Unexpected error occurred while loading data to COMPANY_TYPE" + e.getMessage());
     }
@@ -366,7 +367,7 @@ public class DatabaseLoader {
           System.err.println("Skipping malformed line in complete_cast.csv. Line number: " + lineNumber + " Total lines skipped: " + totalLinesSkipped);
         }
       }
-
+      System.out.println("Finished loading data to COMPLETE_CAST");
     } catch (Exception e) {
       System.out.println("Unexpected error occurred while loading data to COMPLETE_CAST" + e.getMessage());
     }
@@ -393,7 +394,7 @@ public class DatabaseLoader {
           System.err.println("Skipping malformed line in info_type.csv. Line number: " + lineNumber + " Total lines skipped: " + totalLinesSkipped);
         }
       }
-
+      System.out.println("Finished loading data to INFO_TYPE");
     } catch (Exception e) {
       System.out.println("Unexpected error occurred while loading data to INFO_TYPE" + e.getMessage());
     }
@@ -421,7 +422,7 @@ public class DatabaseLoader {
           System.err.println("Skipping malformed line in keyword.csv. Line number: " + lineNumber + " Total lines skipped: " + totalLinesSkipped);
         }
       }
-
+      System.out.println("Finished loading data to KEYWORD");
     } catch (Exception e) {
       System.out.println("Unexpected error occurred while loading data to KEYWORD" + e.getMessage());
     }
@@ -448,7 +449,7 @@ public class DatabaseLoader {
           System.err.println("Skipping malformed line in kind_type.csv. Line number: " + lineNumber + " Total lines skipped: " + totalLinesSkipped);
         }
       }
-
+      System.out.println("Finished loading data to KIND_TYPE");
     } catch (Exception e) {
       System.out.println("Unexpected error occurred while loading data to KIND_TYPE" + e.getMessage());
     }
@@ -475,7 +476,7 @@ public class DatabaseLoader {
           System.err.println("Skipping malformed line in link_type.csv. Line number: " + lineNumber + " Total lines skipped: " + totalLinesSkipped);
         }
       }
-
+      System.out.println("Finished loading data to LINK_TYPE");
     } catch (Exception e) {
       System.out.println("Unexpected error occurred while loading data to LINK_TYPE" + e.getMessage());
     }
@@ -506,7 +507,7 @@ public class DatabaseLoader {
           System.err.println("Skipping malformed line in movie_companies.csv. Line number: " + lineNumber + " Total lines skipped: " + totalLinesSkipped);
         }
       }
-
+      System.out.println("Finished loading data to MOVIE_COMPANIES");
     } catch (Exception e) {
       System.out.println("Unexpected error occurred while loading data to MOVIE_COMPANIES" + e.getMessage());
     }
@@ -537,7 +538,7 @@ public class DatabaseLoader {
           System.err.println("Skipping malformed line in movie_info_idx.csv. Line number: " + lineNumber + " Total lines skipped: " + totalLinesSkipped);
         }
       }
-
+      System.out.println("Finished loading data to MOVIE_INFO_IDX");
     } catch (Exception e) {
       System.out.println("Unexpected error occurred while loading data to MOVIE_INFO_IDX" + e.getMessage());
     }
@@ -566,7 +567,7 @@ public class DatabaseLoader {
           System.err.println("Skipping malformed line in movie_keyword.csv. Line number: " + lineNumber + " Total lines skipped: " + totalLinesSkipped);
         }
       }
-
+      System.out.println("Finished loading data to MOVIE_KEYWORD");
     } catch (Exception e) {
       System.out.println("Unexpected error occurred while loading data to MOVIE_KEYWORD" + e.getMessage());
     }
@@ -595,7 +596,7 @@ public class DatabaseLoader {
           System.err.println("Skipping malformed line in movie_link.csv. Line number: " + lineNumber + " Total lines skipped: " + totalLinesSkipped);
         }
       }
-
+      System.out.println("Finished loading data to MOVIE_LINK");
     } catch (Exception e) {
       System.out.println("Unexpected error occurred while loading data to MOVIE_LINK" + e.getMessage());
     }
@@ -630,7 +631,7 @@ public class DatabaseLoader {
               " Total lines skipped: " + totalLinesSkipped);
         }
       }
-
+      System.out.println("Finished loading data to NAME");
     } catch (Exception e) {
       System.out.println("Unexpected error occurred while loading data to NAME" + e.getMessage());
     }
@@ -657,7 +658,7 @@ public class DatabaseLoader {
           System.err.println("Skipping malformed line in role_type.csv. Line number: " + lineNumber + " Total lines skipped: " + totalLinesSkipped);
         }
       }
-
+      System.out.println("Finished loading data to ROLE_TYPE");
     } catch (Exception e) {
       System.out.println("Unexpected error occurred while loading data to ROLE_TYPE" + e.getMessage());
     }
@@ -694,7 +695,7 @@ public class DatabaseLoader {
           System.err.println("Skipping malformed line in title.csv. Line number: " + lineNumber + " Total lines skipped: " + totalLinesSkipped);
         }
       }
-
+      System.out.println("Finished loading data to TITLE");
     } catch (Exception e) {
       System.out.println("Unexpected error occurred while loading data to TITLE" + e.getMessage());
     }
@@ -724,7 +725,7 @@ public class DatabaseLoader {
           System.err.println("Skipping malformed line in movie_info.csv. Line number: " + lineNumber + " Total lines skipped: " + totalLinesSkipped);
         }
       }
-
+      System.out.println("Finished loading data to MOVIE_INFO");
     } catch (Exception e) {
       System.out.println("Unexpected error occurred while loading data to MOVIE_INFO" + e.getMessage());
     }
@@ -754,6 +755,7 @@ public class DatabaseLoader {
           System.err.println("Skipping malformed line in person_info.csv. Line number: " + lineNumber + " Total lines skipped: " + totalLinesSkipped);
         }
       }
+      System.out.println("Finished loading data to PERSON_INFO");
 
     } catch (Exception e) {
       System.out.println("Unexpected error occurred while loading data to PERSON_INFO" + e.getMessage());
