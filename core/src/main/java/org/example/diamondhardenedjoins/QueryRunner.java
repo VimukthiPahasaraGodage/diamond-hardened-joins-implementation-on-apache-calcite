@@ -22,6 +22,7 @@ import org.apache.calcite.adapter.java.JavaTypeFactory;
 import org.apache.calcite.config.CalciteConnectionConfig;
 import org.apache.calcite.config.CalciteConnectionConfigImpl;
 import org.apache.calcite.config.CalciteConnectionProperty;
+import org.apache.calcite.config.CalciteSystemProperty;
 import org.apache.calcite.interpreter.BindableConvention;
 import org.apache.calcite.interpreter.BindableRel;
 import org.apache.calcite.interpreter.Bindables;
@@ -29,10 +30,11 @@ import org.apache.calcite.jdbc.CalciteSchema;
 import org.apache.calcite.jdbc.JavaTypeFactoryImpl;
 import org.apache.calcite.linq4j.QueryProvider;
 import org.apache.calcite.plan.*;
+import org.apache.calcite.plan.volcano.AbstractConverter;
 import org.apache.calcite.plan.volcano.VolcanoPlanner;
 import org.apache.calcite.prepare.CalciteCatalogReader;
 import org.apache.calcite.rel.RelNode;
-import org.apache.calcite.rel.rules.CoreRules;
+import org.apache.calcite.rel.rules.*;
 import org.apache.calcite.rel.type.RelDataTypeFactory;
 import org.apache.calcite.rex.RexBuilder;
 import org.apache.calcite.schema.SchemaPlus;
@@ -46,18 +48,98 @@ import org.apache.calcite.sql.validate.SqlValidatorUtil;
 import org.apache.calcite.sql2rel.SqlToRelConverter;
 import org.apache.calcite.sql2rel.StandardConvertletTable;
 
+import com.google.common.collect.ImmutableList;
+
 import java.io.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class QueryRunner {
+  static final List<RelOptRule> BASE_RULES =
+      ImmutableList.of(CoreRules.AGGREGATE_STAR_TABLE,
+          CoreRules.AGGREGATE_PROJECT_STAR_TABLE,
+          CalciteSystemProperty.COMMUTE.value()
+              ? CoreRules.JOIN_ASSOCIATE
+              : CoreRules.PROJECT_MERGE,
+          CoreRules.FILTER_SCAN,
+          CoreRules.PROJECT_FILTER_TRANSPOSE,
+          CoreRules.FILTER_PROJECT_TRANSPOSE,
+          CoreRules.FILTER_INTO_JOIN,
+          CoreRules.JOIN_PUSH_EXPRESSIONS,
+          CoreRules.AGGREGATE_EXPAND_DISTINCT_AGGREGATES,
+          CoreRules.AGGREGATE_EXPAND_WITHIN_DISTINCT,
+          CoreRules.AGGREGATE_CASE_TO_FILTER,
+          CoreRules.AGGREGATE_REDUCE_FUNCTIONS,
+          CoreRules.FILTER_AGGREGATE_TRANSPOSE,
+          CoreRules.PROJECT_WINDOW_TRANSPOSE,
+          CoreRules.MATCH,
+          CoreRules.JOIN_COMMUTE,
+          JoinPushThroughJoinRule.RIGHT,
+          JoinPushThroughJoinRule.LEFT,
+          CoreRules.SORT_PROJECT_TRANSPOSE,
+          CoreRules.SORT_JOIN_TRANSPOSE,
+          CoreRules.SORT_REMOVE_CONSTANT_KEYS,
+          CoreRules.SORT_UNION_TRANSPOSE,
+          CoreRules.EXCHANGE_REMOVE_CONSTANT_KEYS,
+          CoreRules.SORT_EXCHANGE_REMOVE_CONSTANT_KEYS,
+          CoreRules.SAMPLE_TO_FILTER,
+          CoreRules.FILTER_SAMPLE_TRANSPOSE,
+          CoreRules.FILTER_WINDOW_TRANSPOSE);
+  static final List<RelOptRule> ABSTRACT_RULES =
+      ImmutableList.of(CoreRules.AGGREGATE_ANY_PULL_UP_CONSTANTS,
+          CoreRules.UNION_PULL_UP_CONSTANTS,
+          PruneEmptyRules.UNION_INSTANCE,
+          PruneEmptyRules.INTERSECT_INSTANCE,
+          PruneEmptyRules.MINUS_INSTANCE,
+          PruneEmptyRules.PROJECT_INSTANCE,
+          PruneEmptyRules.FILTER_INSTANCE,
+          PruneEmptyRules.SORT_INSTANCE,
+          PruneEmptyRules.AGGREGATE_INSTANCE,
+          PruneEmptyRules.JOIN_LEFT_INSTANCE,
+          PruneEmptyRules.JOIN_RIGHT_INSTANCE,
+          PruneEmptyRules.SORT_FETCH_ZERO_INSTANCE,
+          PruneEmptyRules.EMPTY_TABLE_INSTANCE,
+          SingleValuesOptimizationRules.JOIN_LEFT_INSTANCE,
+          SingleValuesOptimizationRules.JOIN_RIGHT_INSTANCE,
+          SingleValuesOptimizationRules.JOIN_LEFT_PROJECT_INSTANCE,
+          SingleValuesOptimizationRules.JOIN_RIGHT_PROJECT_INSTANCE,
+          CoreRules.UNION_MERGE,
+          CoreRules.INTERSECT_MERGE,
+          CoreRules.MINUS_MERGE,
+          CoreRules.PROJECT_OVER_SUM_TO_SUM0_RULE,
+          CoreRules.PROJECT_TO_LOGICAL_PROJECT_AND_WINDOW,
+          CoreRules.FILTER_MERGE,
+          DateRangeRules.FILTER_INSTANCE,
+          CoreRules.INTERSECT_TO_DISTINCT,
+          CoreRules.MINUS_TO_DISTINCT);
+  static final List<RelOptRule> ABSTRACT_RELATIONAL_RULES =
+      ImmutableList.of(CoreRules.FILTER_INTO_JOIN,
+          CoreRules.JOIN_CONDITION_PUSH,
+          AbstractConverter.ExpandConversionRule.INSTANCE,
+          CoreRules.JOIN_COMMUTE,
+          CoreRules.PROJECT_TO_SEMI_JOIN,
+          CoreRules.JOIN_ON_UNIQUE_TO_SEMI_JOIN,
+          CoreRules.JOIN_TO_SEMI_JOIN,
+          CoreRules.AGGREGATE_REMOVE,
+          CoreRules.UNION_TO_DISTINCT,
+          CoreRules.UNION_TO_VALUES,
+          CoreRules.PROJECT_REMOVE,
+          CoreRules.PROJECT_AGGREGATE_MERGE,
+          CoreRules.AGGREGATE_JOIN_TRANSPOSE,
+          CoreRules.AGGREGATE_MERGE,
+          CoreRules.AGGREGATE_PROJECT_MERGE,
+          CoreRules.CALC_REMOVE,
+          CoreRules.SORT_REMOVE);
+  private static final String queryFilesFolder = "C:\\query_results\\";
   private static final RelOptTable.ViewExpander NOOP_EXPANDER = (rowType, queryString, schemaPath
       , viewPath) -> null;
+  private static int successfulQueries = 0;
   private final SchemaBuilder schemaBuilder;
 
   public QueryRunner() throws Exception {
@@ -92,6 +174,7 @@ public class QueryRunner {
     QueryRunner queryRunner = new QueryRunner();
     BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
     final boolean DEFAULT_STD_OUT = true;
+    final boolean DEFAULT_EXEC_CHOICE = true;
 
     while (true) {
       System.out.print("sql> ");
@@ -102,22 +185,27 @@ public class QueryRunner {
       }
 
       final String DEFAULT_OUTPUT_FILENAME = getTimestampForFilename() + "_output.txt";
+      successfulQueries = 0;
 
       if (line.startsWith("\\s ")) {
         // Pattern: \s <query> [--std-out 0|1] [--out <file>]
         String commandBody = line.substring(3).trim();
         String query = extractMainArg(commandBody);
         boolean stdOut = extractFlagBool(commandBody, "--std-out", DEFAULT_STD_OUT);
+        boolean execChoice = extractFlagBool(commandBody, "--omit-exec", DEFAULT_EXEC_CHOICE);
         String outFile = extractFlagValue(commandBody, "--out", DEFAULT_OUTPUT_FILENAME);
 
         if (!query.isEmpty()) {
-          queryRunner.runQuery(query, "C:\\query_results\\" + outFile, stdOut);
+          queryRunner.runQuery(query, queryFilesFolder + outFile, stdOut, execChoice);
+          appendToFile(queryFilesFolder + outFile, getHorizontalDivider() + successfulQueries +
+              " out of 1 queries successful", stdOut);
         }
       } else if (line.startsWith("\\f ")) {
         // Pattern: \f <filename> [--std-out 0|1] [--out <file>]
         String commandBody = line.substring(3).trim();
         String filename = extractMainArg(commandBody);
         boolean stdOut = extractFlagBool(commandBody, "--std-out", DEFAULT_STD_OUT);
+        boolean execChoice = extractFlagBool(commandBody, "--omit-exec", DEFAULT_EXEC_CHOICE);
         String outFile = extractFlagValue(commandBody, "--out", DEFAULT_OUTPUT_FILENAME);
 
         try (BufferedReader fileReader = new BufferedReader(new FileReader(filename))) {
@@ -128,18 +216,24 @@ public class QueryRunner {
           }
 
           String[] queries = sb.toString().split(";");
+          int numQueriesInFile = 0;
           for (String q : queries) {
             String cleanedQuery = q.trim().replaceAll("\\s+", " ");
             if (!cleanedQuery.isEmpty()) {
-              queryRunner.runQuery(cleanedQuery, "C:\\query_results\\" + outFile, stdOut);
+              numQueriesInFile++;
+              queryRunner.runQuery(cleanedQuery, queryFilesFolder + outFile, stdOut, execChoice);
             }
           }
+          appendToFile(queryFilesFolder + outFile, getHorizontalDivider() + successfulQueries +
+              " out of " + numQueriesInFile + " queries successful", stdOut);
         } catch (IOException e) {
           System.err.println("Error reading file: " + e.getMessage());
         }
       } else {
-        System.out.println("Unknown command. Use '\\s <query> [--std-out 0|1] [--out file]' or " +
-            "'\\f <filename> [--std-out 0|1] [--out file]'. Type 'exit' to quit.");
+        System.out.println("Unknown command. Use '\\s <query> [--std-out 0|1] [--omit-exec 0|1] " +
+            "[--out file]' or " +
+            "'\\f <filename> [--std-out 0|1] [--omit-exec 0|1] [--out file]'. Type 'exit' to quit" +
+            ".");
       }
     }
   }
@@ -170,12 +264,13 @@ public class QueryRunner {
     return defaultValue;
   }
 
-  private String getHorizontalDivider() {
+  private static String getHorizontalDivider() {
     return
-        "------------------------------------------------------------------------------------------------------------------\n";
+        "\n------------------------------------------------------------------------------------------------------------------\n";
   }
 
-  public void runQuery(String sqlQuery, String outputFilename, boolean printToStdOutput) {
+  public void runQuery(String sqlQuery, String outputFilename, boolean printToStdOutput,
+      boolean omitExecution) {
     try {
       appendToFile(outputFilename, getHorizontalDivider() + "[SQL Query]\n" + sqlQuery,
           printToStdOutput);
@@ -219,12 +314,7 @@ public class QueryRunner {
           SqlExplainLevel.EXPPLAN_ATTRIBUTES), printToStdOutput);
 
       RelOptPlanner planner = cluster.getPlanner();
-      planner.addRule(CoreRules.FILTER_INTO_JOIN);
-      planner.addRule(Bindables.BINDABLE_TABLE_SCAN_RULE);
-      planner.addRule(Bindables.BINDABLE_FILTER_RULE);
-      planner.addRule(Bindables.BINDABLE_JOIN_RULE);
-      planner.addRule(Bindables.BINDABLE_PROJECT_RULE);
-      planner.addRule(Bindables.BINDABLE_SORT_RULE);
+      addRulesToPlanner(planner);
 
       logPlan = planner.changeTraits(logPlan,
           cluster.traitSet().replace(BindableConvention.INSTANCE));
@@ -235,14 +325,36 @@ public class QueryRunner {
           SqlExplainFormat.TEXT,
           SqlExplainLevel.NON_COST_ATTRIBUTES), printToStdOutput);
 
-      appendToFile(outputFilename, "\n[Output]", printToStdOutput);
-      for (Object[] row : phyPlan.bind(new SchemaOnlyDataContext(schemaBuilder.getSchema()))) {
-        appendToFile(outputFilename, Arrays.toString(row), printToStdOutput);
+      if (!omitExecution) {
+        appendToFile(outputFilename, "\n[Output]", printToStdOutput);
+
+        for (Object[] row : phyPlan.bind(new SchemaOnlyDataContext(schemaBuilder.getSchema()))) {
+          appendToFile(outputFilename, Arrays.toString(row), printToStdOutput);
+        }
       }
+      successfulQueries++;
     } catch (Exception e) {
       appendToFile(outputFilename, "Error while executing the query: " + e.getMessage(),
           printToStdOutput);
       // e.printStackTrace();
+    }
+  }
+
+  private void addRulesToPlanner(RelOptPlanner planner) {
+    for (RelOptRule rule : Bindables.RULES) {
+      planner.addRule(rule);
+    }
+
+    for (RelOptRule rule : BASE_RULES) {
+      planner.addRule(rule);
+    }
+
+    for (RelOptRule rule : ABSTRACT_RULES) {
+      planner.addRule(rule);
+    }
+
+    for (RelOptRule rule : ABSTRACT_RELATIONAL_RULES) {
+      planner.addRule(rule);
     }
   }
 

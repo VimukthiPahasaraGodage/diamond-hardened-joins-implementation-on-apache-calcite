@@ -143,7 +143,7 @@ public class SchemaBuilder {
     company_nameType.add("name_pcode_sf", SqlTypeName.VARCHAR);
     company_nameType.add("md5sum", SqlTypeName.VARCHAR);
 
-    ListTable company_nameTable = new ListTable(char_nameType.build(),
+    ListTable company_nameTable = new ListTable(company_nameType.build(),
         databaseLoader.getCOMPANY_NAME());
     schema.add("company_name", company_nameTable);
 
