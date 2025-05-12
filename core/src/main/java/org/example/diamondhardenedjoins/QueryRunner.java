@@ -62,35 +62,37 @@ import java.util.regex.Pattern;
 
 public class QueryRunner {
   static final List<RelOptRule> BASE_RULES =
-      ImmutableList.of(CoreRules.AGGREGATE_STAR_TABLE,
-          CoreRules.AGGREGATE_PROJECT_STAR_TABLE,
-          CalciteSystemProperty.COMMUTE.value()
-              ? CoreRules.JOIN_ASSOCIATE
-              : CoreRules.PROJECT_MERGE,
-          CoreRules.FILTER_SCAN,
-          CoreRules.PROJECT_FILTER_TRANSPOSE,
-          CoreRules.FILTER_PROJECT_TRANSPOSE,
+      ImmutableList.of(
+//          CoreRules.AGGREGATE_STAR_TABLE,
+//          CoreRules.AGGREGATE_PROJECT_STAR_TABLE,
+//          CalciteSystemProperty.COMMUTE.value()
+//              ? CoreRules.JOIN_ASSOCIATE
+//              : CoreRules.PROJECT_MERGE,
+//          CoreRules.FILTER_SCAN,
+//          CoreRules.PROJECT_FILTER_TRANSPOSE,
+//          CoreRules.FILTER_PROJECT_TRANSPOSE,
           CoreRules.FILTER_INTO_JOIN,
-          CoreRules.JOIN_PUSH_EXPRESSIONS,
-          CoreRules.AGGREGATE_EXPAND_DISTINCT_AGGREGATES,
-          CoreRules.AGGREGATE_EXPAND_WITHIN_DISTINCT,
-          CoreRules.AGGREGATE_CASE_TO_FILTER,
-          CoreRules.AGGREGATE_REDUCE_FUNCTIONS,
-          CoreRules.FILTER_AGGREGATE_TRANSPOSE,
-          CoreRules.PROJECT_WINDOW_TRANSPOSE,
-          CoreRules.MATCH,
+//          CoreRules.JOIN_PUSH_EXPRESSIONS,
+//          CoreRules.AGGREGATE_EXPAND_DISTINCT_AGGREGATES,
+//          CoreRules.AGGREGATE_EXPAND_WITHIN_DISTINCT,
+//          CoreRules.AGGREGATE_CASE_TO_FILTER,
+//          CoreRules.AGGREGATE_REDUCE_FUNCTIONS,
+//          CoreRules.FILTER_AGGREGATE_TRANSPOSE,
+//          CoreRules.PROJECT_WINDOW_TRANSPOSE,
+//          CoreRules.MATCH,
           CoreRules.JOIN_COMMUTE,
           JoinPushThroughJoinRule.RIGHT,
-          JoinPushThroughJoinRule.LEFT,
-          CoreRules.SORT_PROJECT_TRANSPOSE,
-          CoreRules.SORT_JOIN_TRANSPOSE,
-          CoreRules.SORT_REMOVE_CONSTANT_KEYS,
-          CoreRules.SORT_UNION_TRANSPOSE,
-          CoreRules.EXCHANGE_REMOVE_CONSTANT_KEYS,
-          CoreRules.SORT_EXCHANGE_REMOVE_CONSTANT_KEYS,
-          CoreRules.SAMPLE_TO_FILTER,
-          CoreRules.FILTER_SAMPLE_TRANSPOSE,
-          CoreRules.FILTER_WINDOW_TRANSPOSE);
+          JoinPushThroughJoinRule.LEFT
+//          CoreRules.SORT_PROJECT_TRANSPOSE,
+//          CoreRules.SORT_JOIN_TRANSPOSE,
+//          CoreRules.SORT_REMOVE_CONSTANT_KEYS,
+//          CoreRules.SORT_UNION_TRANSPOSE,
+//          CoreRules.EXCHANGE_REMOVE_CONSTANT_KEYS,
+//          CoreRules.SORT_EXCHANGE_REMOVE_CONSTANT_KEYS,
+//          CoreRules.SAMPLE_TO_FILTER,
+//          CoreRules.FILTER_SAMPLE_TRANSPOSE,
+//          CoreRules.FILTER_WINDOW_TRANSPOSE
+          );
   static final List<RelOptRule> ABSTRACT_RULES =
       ImmutableList.of(CoreRules.AGGREGATE_ANY_PULL_UP_CONSTANTS,
           CoreRules.UNION_PULL_UP_CONSTANTS,
@@ -349,13 +351,13 @@ public class QueryRunner {
       planner.addRule(rule);
     }
 
-    for (RelOptRule rule : ABSTRACT_RULES) {
-      planner.addRule(rule);
-    }
+//    for (RelOptRule rule : ABSTRACT_RULES) {
+//      planner.addRule(rule);
+//    }
 
-    for (RelOptRule rule : ABSTRACT_RELATIONAL_RULES) {
-      planner.addRule(rule);
-    }
+//    for (RelOptRule rule : ABSTRACT_RELATIONAL_RULES) {
+//      planner.addRule(rule);
+//    }
   }
 
   /**
