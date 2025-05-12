@@ -47,6 +47,8 @@ import org.apache.calcite.sql2rel.SqlToRelConverter;
 import org.apache.calcite.sql2rel.StandardConvertletTable;
 
 import java.io.*;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Properties;
@@ -81,10 +83,14 @@ public class QueryRunner {
     return RelOptCluster.create(planner, new RexBuilder(factory));
   }
 
+  public static String getTimestampForFilename() {
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss");
+    return LocalDateTime.now().format(formatter);
+  }
+
   public static void main(String[] args) throws Exception {
     QueryRunner queryRunner = new QueryRunner();
     BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-    final String DEFAULT_OUTPUT_FILENAME = System.currentTimeMillis() + "_output.txt";
     final boolean DEFAULT_STD_OUT = true;
 
     while (true) {
@@ -95,6 +101,8 @@ public class QueryRunner {
         break;
       }
 
+      final String DEFAULT_OUTPUT_FILENAME = getTimestampForFilename() + "_output.txt";
+
       if (line.startsWith("\\s ")) {
         // Pattern: \s <query> [--std-out 0|1] [--out <file>]
         String commandBody = line.substring(3).trim();
@@ -103,7 +111,7 @@ public class QueryRunner {
         String outFile = extractFlagValue(commandBody, "--out", DEFAULT_OUTPUT_FILENAME);
 
         if (!query.isEmpty()) {
-          queryRunner.runQuery(query, outFile, stdOut);
+          queryRunner.runQuery(query, "C:\\query_results\\" + outFile, stdOut);
         }
       } else if (line.startsWith("\\f ")) {
         // Pattern: \f <filename> [--std-out 0|1] [--out <file>]
@@ -123,7 +131,7 @@ public class QueryRunner {
           for (String q : queries) {
             String cleanedQuery = q.trim().replaceAll("\\s+", " ");
             if (!cleanedQuery.isEmpty()) {
-              queryRunner.runQuery(cleanedQuery, outFile, stdOut);
+              queryRunner.runQuery(cleanedQuery, "C:\\query_results\\" + outFile, stdOut);
             }
           }
         } catch (IOException e) {
@@ -162,12 +170,19 @@ public class QueryRunner {
     return defaultValue;
   }
 
+  private String getHorizontalDivider() {
+    return
+        "------------------------------------------------------------------------------------------------------------------\n";
+  }
+
   public void runQuery(String sqlQuery, String outputFilename, boolean printToStdOutput) {
     try {
+      appendToFile(outputFilename, getHorizontalDivider() + "[SQL Query]\n" + sqlQuery,
+          printToStdOutput);
       SqlParser parser = SqlParser.create(sqlQuery);
       SqlNode sqlNode = parser.parseQuery();
 
-      appendToFile(outputFilename, "[SqlNode]\n" + sqlNode, printToStdOutput);
+      appendToFile(outputFilename, "\n[SqlNode]\n" + sqlNode, printToStdOutput);
 
       Properties props = new Properties();
       props.setProperty(CalciteConnectionProperty.CASE_SENSITIVE.camelName(), "false");
@@ -186,7 +201,7 @@ public class QueryRunner {
 
       SqlNode validNode = validator.validate(sqlNode);
 
-      appendToFile(outputFilename, "[Valid SqlNode]\n" + validNode, printToStdOutput);
+      appendToFile(outputFilename, "\n[Valid SqlNode]\n" + validNode, printToStdOutput);
 
       RelOptCluster cluster = newCluster(schemaBuilder.getTypeFactory());
       SqlToRelConverter relConverter = new SqlToRelConverter(
@@ -199,7 +214,7 @@ public class QueryRunner {
 
       RelNode logPlan = relConverter.convertQuery(validNode, false, true).rel;
 
-      appendToFile(outputFilename, RelOptUtil.dumpPlan("[Logical plan]", logPlan,
+      appendToFile(outputFilename, RelOptUtil.dumpPlan("\n[Logical plan]", logPlan,
           SqlExplainFormat.TEXT,
           SqlExplainLevel.EXPPLAN_ATTRIBUTES), printToStdOutput);
 
@@ -216,17 +231,18 @@ public class QueryRunner {
       planner.setRoot(logPlan);
       BindableRel phyPlan = (BindableRel) planner.findBestExp();
 
-      appendToFile(outputFilename, RelOptUtil.dumpPlan("[Physical plan]", phyPlan,
+      appendToFile(outputFilename, RelOptUtil.dumpPlan("\n[Physical plan]", phyPlan,
           SqlExplainFormat.TEXT,
           SqlExplainLevel.NON_COST_ATTRIBUTES), printToStdOutput);
 
-      appendToFile(outputFilename, "[Output]\n", printToStdOutput);
+      appendToFile(outputFilename, "\n[Output]", printToStdOutput);
       for (Object[] row : phyPlan.bind(new SchemaOnlyDataContext(schemaBuilder.getSchema()))) {
         appendToFile(outputFilename, Arrays.toString(row), printToStdOutput);
       }
     } catch (Exception e) {
-      System.out.println("Error while executing the query: " + e.getMessage());
-      e.printStackTrace();
+      appendToFile(outputFilename, "Error while executing the query: " + e.getMessage(),
+          printToStdOutput);
+      // e.printStackTrace();
     }
   }
 

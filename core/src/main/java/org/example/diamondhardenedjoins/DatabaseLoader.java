@@ -33,7 +33,6 @@ import java.util.concurrent.Future;
 
 public class DatabaseLoader {
   private static DatabaseLoader databaseLoader;
-
   private final List<String> tables = new ArrayList<>(Arrays.asList(
       "aka_name",
       "aka_title",
@@ -57,7 +56,6 @@ public class DatabaseLoader {
       "movie_info",
       "person_info"
   ));
-
   private final List<Object[]> AKA_NAME = new ArrayList<>();
   private final List<Object[]> AKA_TITLE = new ArrayList<>();
   private final List<Object[]> CAST_INFO = new ArrayList<>();
@@ -79,6 +77,8 @@ public class DatabaseLoader {
   private final List<Object[]> TITLE = new ArrayList<>();
   private final List<Object[]> MOVIE_INFO = new ArrayList<>();
   private final List<Object[]> PERSON_INFO = new ArrayList<>();
+  private int nullInt = -1;
+  private double nullDouble = -1;
 
   private DatabaseLoader() throws Exception {
     String csvFilePath = "C:\\JOB_dataset";
@@ -90,7 +90,15 @@ public class DatabaseLoader {
     printSizesOfArrayLists();
   }
 
-  private void printSizesOfArrayLists(){
+  public static DatabaseLoader getInstance() throws Exception {
+    if (databaseLoader == null) {
+      databaseLoader = new DatabaseLoader();
+      return databaseLoader;
+    }
+    return databaseLoader;
+  }
+
+  private void printSizesOfArrayLists() {
     System.out.println("AKA_NAME: " + AKA_NAME.size());
     System.out.println("AKA_TITLE: " + AKA_TITLE.size());
     System.out.println("CAST_INFO: " + CAST_INFO.size());
@@ -112,14 +120,6 @@ public class DatabaseLoader {
     System.out.println("TITLE: " + TITLE.size());
     System.out.println("MOVIE_INFO: " + MOVIE_INFO.size());
     System.out.println("PERSON_INFO: " + PERSON_INFO.size());
-  }
-
-  public static DatabaseLoader getInstance() throws Exception {
-    if (databaseLoader == null) {
-      databaseLoader = new DatabaseLoader();
-      return databaseLoader;
-    }
-    return databaseLoader;
   }
 
   private void loadDataToAkaName(String csvFilePath) {
@@ -888,9 +888,19 @@ public class DatabaseLoader {
     return true;
   }
 
+  private Integer getNullInt() {
+    nullInt--;
+    return nullInt;
+  }
+
+  private Double getNullDouble() {
+    nullDouble--;
+    return nullDouble;
+  }
+
   private Integer parseNullableInt(String value) {
     if (value == null || value.trim().isEmpty()) {
-      return null;
+      return getNullInt();
     }
     try {
       return Integer.parseInt(value);
@@ -901,7 +911,7 @@ public class DatabaseLoader {
 
   private Double parseNullableDouble(String value) {
     if (value == null || value.trim().isEmpty()) {
-      return null;
+      return getNullDouble();
     }
     return Double.parseDouble(value);
   }
