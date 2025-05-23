@@ -51,7 +51,7 @@ public class DatabaseLoader2 {
   private double nullDouble = -1;
 
   private DatabaseLoader2() throws Exception {
-    String csvFilePath = "D:\\Benchmark_Dataset";
+    String csvFilePath = "C:\\Benchmark_Dataset";
     if (!checkAllCsvFilesExists(csvFilePath)) {
       throw new Exception("Check for necessary CSV files failed. One or more necessary CSV files " +
           "are missing");

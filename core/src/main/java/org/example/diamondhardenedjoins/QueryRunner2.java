@@ -137,7 +137,7 @@ public class QueryRunner2 {
           CoreRules.AGGREGATE_PROJECT_MERGE,
           CoreRules.CALC_REMOVE,
           CoreRules.SORT_REMOVE);
-  private static final String queryFilesFolder = "D:\\query_results\\";
+  private static final String queryFilesFolder = "C:\\query_results\\";
   private static final RelOptTable.ViewExpander NOOP_EXPANDER = (rowType, queryString, schemaPath
       , viewPath) -> null;
   private static int successfulQueries = 0;
