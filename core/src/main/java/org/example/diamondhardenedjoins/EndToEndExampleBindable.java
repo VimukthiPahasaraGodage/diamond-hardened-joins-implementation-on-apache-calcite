@@ -89,7 +89,7 @@ public class EndToEndExampleBindable {
   }
 
   public static void main(String[] args) throws Exception {
-    new EndToEndExampleBindable().example1();
+    new EndToEndExampleBindable().example();
   }
 
   public void example2() throws Exception {
@@ -369,9 +369,9 @@ public class EndToEndExampleBindable {
     // Display the physical plan
     System.out.println(RelOptUtil.toString(physicalPlan));
     // Run the executable plan using a context simply providing access to the schema
-    for (Object[] row : finalPlan.bind(new SchemaOnlyDataContext(schema)).asEnumerable()) {
-      System.out.println(Arrays.asList(row));
-    }
+//    for (Object[] row : finalPlan.bind(new SchemaOnlyDataContext(schema)).asEnumerable()) {
+//      System.out.println(Arrays.asList(row));
+//    }
   }
 
   /**
