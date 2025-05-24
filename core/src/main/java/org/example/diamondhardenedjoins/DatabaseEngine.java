@@ -35,7 +35,7 @@ public class DatabaseEngine {
   private static final String DEFAULT_LOGS_FOLDER = "execution_outputs";
   private static final String DEFAULT_QUERY_FILES_FOLDER = "C:\\calcite_outputs\\";
   private static final String DEFAULT_BACKEND_EXECUTABLE_PATH = "C:\\execution_backend\\driver.exe";
-  private static final String DEFAULT_DATASET_CSV_PATH = "C:\\Benchmark2_Dataset";
+  private static final String DEFAULT_DATASET_CSV_PATH = "C:\\\\Benchmark2_Dataset";
 
   public static void appendToFile(String filename, String text, boolean printToStdOutput) {
     try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename, true))) {
@@ -59,8 +59,8 @@ public class DatabaseEngine {
       System.out.print("sql> ");
       String line = reader.readLine();
 
-      if (line == null || line.equalsIgnoreCase("exit")) {
-        break;
+      if (line.trim().isEmpty() || line.equalsIgnoreCase("exit")) {
+        continue;
       }
 
       final String DEFAULT_OUTPUT_FILENAME = getTimestampForFilename() + "_output.txt";
