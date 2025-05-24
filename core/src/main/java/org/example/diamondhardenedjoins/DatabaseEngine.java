@@ -96,7 +96,7 @@ public class DatabaseEngine {
               " out of 1 queries successful", stdOut);
           executeOptimizedQueryPlan(backendExecutablePath, queryFilesFolder + outFile,
               csvDatasetPath, executionTreeVisualizationFolder, generatedCodesFolder, logsFolder,
-              visualize, stdCodeOut);
+              visualize, stdCodeOut, optimizationMethod);
         }
       } else if (line.startsWith("\\f ")) {
         try (BufferedReader fileReader = new BufferedReader(new FileReader(mainArg))) {
@@ -116,7 +116,7 @@ public class DatabaseEngine {
                   optimizationMethod);
               executeOptimizedQueryPlan(backendExecutablePath, queryFilesFolder + outFile,
                   csvDatasetPath, executionTreeVisualizationFolder, generatedCodesFolder,
-                  logsFolder, visualize, stdCodeOut);
+                  logsFolder, visualize, stdCodeOut, optimizationMethod);
             }
           }
           appendToFile(queryFilesFolder + outFile,
@@ -136,7 +136,7 @@ public class DatabaseEngine {
 
   private static void executeOptimizedQueryPlan(String backendExecutablePath,
       String calciteOutputFile, String csvDatasetPath, String executionTreeVisualizationsFolder,
-      String generatedCodesFolder, String logsFolder, int visualize, int std_out_code) {
+      String generatedCodesFolder, String logsFolder, int visualize, int std_out_code, String optimizationMethod) {
     try {
       ProcessBuilder builder = new ProcessBuilder(backendExecutablePath,
           "--calcite_output_file", calciteOutputFile,
@@ -145,7 +145,8 @@ public class DatabaseEngine {
           "--logs_folder", logsFolder,
           "--csv_dataset_path", csvDatasetPath,
           "--visualize", Integer.toString(visualize),
-          "--std_out_code", Integer.toString(std_out_code));
+          "--std_out_code", Integer.toString(std_out_code),
+          "--opt", optimizationMethod);
 
       builder.redirectErrorStream(true);
 

@@ -253,17 +253,9 @@ public class QueryRunner {
       planner.setRoot(logPlan);
       BindableRel phyPlan = (BindableRel) planner.findBestExp();
 
-      if (Objects.equals(optimization, "normal")) {
-        appendToFile(outputFilename, RelOptUtil.dumpPlan("\n[Physical plan]", phyPlan,
-            SqlExplainFormat.TEXT,
-            SqlExplainLevel.NON_COST_ATTRIBUTES), printToStdOutput);
-      } else if (Objects.equals(optimization, "LE-decomposition")) {
-        // TODO: modify the optimized tree by replacing the Joins with Lookup and Expand
-        throw new Exception("Lookup & Decomposition Optimization is not implemented!");
-      } else {
-        throw new Exception("No such optimization method available (use 'normal' or " +
-                "'LE-decomposition'");
-      }
+      appendToFile(outputFilename, RelOptUtil.dumpPlan("\n[Physical plan]", phyPlan,
+          SqlExplainFormat.TEXT,
+          SqlExplainLevel.NON_COST_ATTRIBUTES), printToStdOutput);
 
       if (!omitExecution) {
         appendToFile(outputFilename, "\n[Output]", printToStdOutput);
