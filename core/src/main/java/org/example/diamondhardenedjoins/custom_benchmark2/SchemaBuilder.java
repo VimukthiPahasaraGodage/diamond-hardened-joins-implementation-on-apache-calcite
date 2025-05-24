@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.example.diamondhardenedjoins;
+package org.example.diamondhardenedjoins.custom_benchmark2;
 
 import org.apache.calcite.DataContext;
 import org.apache.calcite.jdbc.CalciteSchema;
@@ -30,21 +30,21 @@ import org.apache.calcite.sql.type.SqlTypeName;
 
 import java.util.List;
 
-public class SchemaBuilder3 {
-  private static SchemaBuilder3 schemaBuilder;
+public class SchemaBuilder {
+  private static SchemaBuilder schemaBuilder;
   private RelDataTypeFactory typeFactory;
   private CalciteSchema schema;
 
-  private SchemaBuilder3() throws Exception {
+  private SchemaBuilder() throws Exception {
     System.out.println("Loading the CSV files into ArrayLists...");
-    DatabaseLoader3 databaseLoader = DatabaseLoader3.getInstance();
+    DatabaseLoader databaseLoader = DatabaseLoader.getInstance();
     System.out.println("Building the database schema...");
     buildSchema(databaseLoader);
   }
 
-  public static SchemaBuilder3 getInstance() throws Exception {
+  public static SchemaBuilder getInstance() throws Exception {
     if (schemaBuilder == null) {
-      schemaBuilder = new SchemaBuilder3();
+      schemaBuilder = new SchemaBuilder();
       return schemaBuilder;
     }
     return schemaBuilder;
@@ -58,7 +58,7 @@ public class SchemaBuilder3 {
     return schema;
   }
 
-  private void buildSchema(DatabaseLoader3 databaseLoader) {
+  private void buildSchema(DatabaseLoader databaseLoader) {
     typeFactory = new JavaTypeFactoryImpl();
     schema = CalciteSchema.createRootSchema(true);
 
@@ -82,7 +82,8 @@ public class SchemaBuilder3 {
     subcategoriesType.add("subcategory_id", SqlTypeName.INTEGER);
     subcategoriesType.add("category_id", SqlTypeName.INTEGER);
     subcategoriesType.add("name", SqlTypeName.VARCHAR);
-    schema.add("Subcategories", new ListTable(subcategoriesType.build(), databaseLoader.getSubcategories()));
+    schema.add("Subcategories", new ListTable(subcategoriesType.build(),
+        databaseLoader.getSubcategories()));
 
     // Suppliers Table
     RelDataTypeFactory.Builder suppliersType = new RelDataTypeFactory.Builder(typeFactory);
@@ -96,7 +97,8 @@ public class SchemaBuilder3 {
     manufacturersType.add("manufacturer_id", SqlTypeName.INTEGER);
     manufacturersType.add("region_id", SqlTypeName.INTEGER);
     manufacturersType.add("name", SqlTypeName.VARCHAR);
-    schema.add("Manufacturers", new ListTable(manufacturersType.build(), databaseLoader.getManufacturers()));
+    schema.add("Manufacturers", new ListTable(manufacturersType.build(),
+        databaseLoader.getManufacturers()));
 
     // Regions Table
     RelDataTypeFactory.Builder regionsType = new RelDataTypeFactory.Builder(typeFactory);

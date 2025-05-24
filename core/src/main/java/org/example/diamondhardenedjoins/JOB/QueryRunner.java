@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.example.diamondhardenedjoins;
+package org.example.diamondhardenedjoins.JOB;
 
 import org.apache.calcite.DataContext;
 import org.apache.calcite.adapter.java.JavaTypeFactory;
@@ -49,17 +49,16 @@ import org.apache.calcite.sql2rel.StandardConvertletTable;
 
 import com.google.common.collect.ImmutableList;
 
-import java.io.*;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class QueryRunner3 {
+public class QueryRunner {
   static final List<RelOptRule> BASE_RULES =
       ImmutableList.of(
 //          CoreRules.AGGREGATE_STAR_TABLE,
@@ -141,10 +140,10 @@ public class QueryRunner3 {
   private static final RelOptTable.ViewExpander NOOP_EXPANDER = (rowType, queryString, schemaPath
       , viewPath) -> null;
   private static int successfulQueries = 0;
-  private final SchemaBuilder3 schemaBuilder;
+  private final SchemaBuilder schemaBuilder;
 
-  public QueryRunner3() throws Exception {
-    schemaBuilder = SchemaBuilder3.getInstance();
+  public QueryRunner() throws Exception {
+    schemaBuilder = SchemaBuilder.getInstance();
   }
 
   public static void appendToFile(String filename, String text, boolean printToStdOutput) {
@@ -169,74 +168,6 @@ public class QueryRunner3 {
   public static String getTimestampForFilename() {
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss");
     return LocalDateTime.now().format(formatter);
-  }
-
-  public static void main(String[] args) throws Exception {
-    QueryRunner3 queryRunner = new QueryRunner3();
-    BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-    final boolean DEFAULT_STD_OUT = true;
-    final boolean DEFAULT_EXEC_CHOICE = true;
-
-    while (true) {
-      System.out.print("sql> ");
-      String line = reader.readLine();
-
-      if (line == null || line.equalsIgnoreCase("exit")) {
-        break;
-      }
-
-      final String DEFAULT_OUTPUT_FILENAME = getTimestampForFilename() + "_output.txt";
-      successfulQueries = 0;
-
-      if (line.startsWith("\\s ")) {
-        // Pattern: \s <query> [--std-out 0|1] [--out <file>]
-        String commandBody = line.substring(3).trim();
-        String query = extractMainArg(commandBody);
-        boolean stdOut = extractFlagBool(commandBody, "--std-out", DEFAULT_STD_OUT);
-        boolean execChoice = extractFlagBool(commandBody, "--omit-exec", DEFAULT_EXEC_CHOICE);
-        String outFile = extractFlagValue(commandBody, "--out", DEFAULT_OUTPUT_FILENAME);
-
-        if (!query.isEmpty()) {
-          queryRunner.runQuery(query, queryFilesFolder + outFile, stdOut, execChoice);
-          appendToFile(queryFilesFolder + outFile, getHorizontalDivider() + successfulQueries +
-              " out of 1 queries successful", stdOut);
-        }
-      } else if (line.startsWith("\\f ")) {
-        // Pattern: \f <filename> [--std-out 0|1] [--out <file>]
-        String commandBody = line.substring(3).trim();
-        String filename = extractMainArg(commandBody);
-        boolean stdOut = extractFlagBool(commandBody, "--std-out", DEFAULT_STD_OUT);
-        boolean execChoice = extractFlagBool(commandBody, "--omit-exec", DEFAULT_EXEC_CHOICE);
-        String outFile = extractFlagValue(commandBody, "--out", DEFAULT_OUTPUT_FILENAME);
-
-        try (BufferedReader fileReader = new BufferedReader(new FileReader(filename))) {
-          StringBuilder sb = new StringBuilder();
-          String fileLine;
-          while ((fileLine = fileReader.readLine()) != null) {
-            sb.append(fileLine).append(" ");
-          }
-
-          String[] queries = sb.toString().split(";");
-          int numQueriesInFile = 0;
-          for (String q : queries) {
-            String cleanedQuery = q.trim().replaceAll("\\s+", " ");
-            if (!cleanedQuery.isEmpty()) {
-              numQueriesInFile++;
-              queryRunner.runQuery(cleanedQuery, queryFilesFolder + outFile, stdOut, execChoice);
-            }
-          }
-          appendToFile(queryFilesFolder + outFile, getHorizontalDivider() + successfulQueries +
-              " out of " + numQueriesInFile + " queries successful", stdOut);
-        } catch (IOException e) {
-          System.err.println("Error reading file: " + e.getMessage());
-        }
-      } else {
-        System.out.println("Unknown command. Use '\\s <query> [--std-out 0|1] [--omit-exec 0|1] " +
-            "[--out file]' or " +
-            "'\\f <filename> [--std-out 0|1] [--omit-exec 0|1] [--out file]'. Type 'exit' to quit" +
-            ".");
-      }
-    }
   }
 
   // Extracts the main argument before the first flag (used for query or filename)
@@ -271,7 +202,7 @@ public class QueryRunner3 {
   }
 
   public void runQuery(String sqlQuery, String outputFilename, boolean printToStdOutput,
-      boolean omitExecution) {
+      boolean omitExecution, String optimization) {
     try {
       appendToFile(outputFilename, getHorizontalDivider() + "[SQL Query]\n" + sqlQuery,
           printToStdOutput);
@@ -322,9 +253,17 @@ public class QueryRunner3 {
       planner.setRoot(logPlan);
       BindableRel phyPlan = (BindableRel) planner.findBestExp();
 
-      appendToFile(outputFilename, RelOptUtil.dumpPlan("\n[Physical plan]", phyPlan,
-          SqlExplainFormat.TEXT,
-          SqlExplainLevel.NON_COST_ATTRIBUTES), printToStdOutput);
+      if (Objects.equals(optimization, "normal")) {
+        appendToFile(outputFilename, RelOptUtil.dumpPlan("\n[Physical plan]", phyPlan,
+            SqlExplainFormat.TEXT,
+            SqlExplainLevel.NON_COST_ATTRIBUTES), printToStdOutput);
+      } else if (Objects.equals(optimization, "LE-decomposition")) {
+        // TODO: modify the optimized tree by replacing the Joins with Lookup and Expand
+        throw new Exception("Lookup & Decomposition Optimization is not implemented!");
+      } else {
+        throw new Exception("No such optimization method available (use 'normal' or " +
+            "'LE-decomposition'");
+      }
 
       if (!omitExecution) {
         appendToFile(outputFilename, "\n[Output]", printToStdOutput);

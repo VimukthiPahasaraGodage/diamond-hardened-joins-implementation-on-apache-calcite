@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.example.diamondhardenedjoins;
+package org.example.diamondhardenedjoins.custom_benchmark2;
 
 import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;
@@ -31,8 +31,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-public class DatabaseLoader3 {
-  private static DatabaseLoader3 databaseLoader;
+public class DatabaseLoader {
+  private static DatabaseLoader databaseLoader;
   private final List<String> tables = new ArrayList<>(Arrays.asList(
       "countries",
       "regions",
@@ -58,7 +58,7 @@ public class DatabaseLoader3 {
   private int nullInt = -1;
   private double nullDouble = -1;
 
-  private DatabaseLoader3() throws Exception {
+  private DatabaseLoader() throws Exception {
     String csvFilePath = "C:\\Benchmark2_Dataset";
     if (!checkAllCsvFilesExists(csvFilePath)) {
       throw new Exception("Check for necessary CSV files failed. One or more necessary CSV files " +
@@ -68,9 +68,9 @@ public class DatabaseLoader3 {
     printSizesOfArrayLists();
   }
 
-  public static DatabaseLoader3 getInstance() throws Exception {
+  public static DatabaseLoader getInstance() throws Exception {
     if (databaseLoader == null) {
-      databaseLoader = new DatabaseLoader3();
+      databaseLoader = new DatabaseLoader();
       return databaseLoader;
     }
     return databaseLoader;

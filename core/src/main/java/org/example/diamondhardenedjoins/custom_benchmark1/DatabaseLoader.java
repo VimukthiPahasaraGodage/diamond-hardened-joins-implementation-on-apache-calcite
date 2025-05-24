@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.example.diamondhardenedjoins;
+package org.example.diamondhardenedjoins.custom_benchmark1;
 
 import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;
@@ -31,8 +31,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-public class DatabaseLoader2 {
-  private static DatabaseLoader2 databaseLoader;
+public class DatabaseLoader {
+  private static DatabaseLoader databaseLoader;
   private final List<String> tables = new ArrayList<>(Arrays.asList(
       "A",
       "B",
@@ -50,7 +50,7 @@ public class DatabaseLoader2 {
   private int nullInt = -1;
   private double nullDouble = -1;
 
-  private DatabaseLoader2() throws Exception {
+  private DatabaseLoader() throws Exception {
     String csvFilePath = "C:\\Benchmark_Dataset";
     if (!checkAllCsvFilesExists(csvFilePath)) {
       throw new Exception("Check for necessary CSV files failed. One or more necessary CSV files " +
@@ -60,9 +60,9 @@ public class DatabaseLoader2 {
     printSizesOfArrayLists();
   }
 
-  public static DatabaseLoader2 getInstance() throws Exception {
+  public static DatabaseLoader getInstance() throws Exception {
     if (databaseLoader == null) {
-      databaseLoader = new DatabaseLoader2();
+      databaseLoader = new DatabaseLoader();
       return databaseLoader;
     }
     return databaseLoader;
@@ -95,7 +95,8 @@ public class DatabaseLoader2 {
           A.add(newRow);
         } catch (Exception inner) {
           totalLinesSkipped++;
-          System.err.println("Skipping malformed line in A.csv. Line number: " + lineNumber + " Total lines skipped: " + totalLinesSkipped);
+          System.err.println("Skipping malformed line in A.csv. Line number: " + lineNumber + " " +
+                  "Total lines skipped: " + totalLinesSkipped);
         }
       }
       System.out.println("Finished loading data to A");
@@ -123,7 +124,8 @@ public class DatabaseLoader2 {
           B.add(newRow);
         } catch (Exception inner) {
           totalLinesSkipped++;
-          System.err.println("Skipping malformed line in B.csv. Line number: " + lineNumber + " Total lines skipped: " + totalLinesSkipped);
+          System.err.println("Skipping malformed line in B.csv. Line number: " + lineNumber + " " +
+                  "Total lines skipped: " + totalLinesSkipped);
         }
       }
       System.out.println("Finished loading data to B");
@@ -151,7 +153,8 @@ public class DatabaseLoader2 {
           C.add(newRow);
         } catch (Exception inner) {
           totalLinesSkipped++;
-          System.err.println("Skipping malformed line in C.csv. Line number: " + lineNumber + " Total lines skipped: " + totalLinesSkipped);
+          System.err.println("Skipping malformed line in C.csv. Line number: " + lineNumber + " " +
+                  "Total lines skipped: " + totalLinesSkipped);
         }
       }
       System.out.println("Finished loading data to C");
@@ -180,7 +183,8 @@ public class DatabaseLoader2 {
           D.add(newRow);
         } catch (Exception inner) {
           totalLinesSkipped++;
-          System.err.println("Skipping malformed line in D.csv. Line number: " + lineNumber + " Total lines skipped: " + totalLinesSkipped);
+          System.err.println("Skipping malformed line in D.csv. Line number: " + lineNumber + " " +
+                  "Total lines skipped: " + totalLinesSkipped);
         }
       }
       System.out.println("Finished loading data to D");
@@ -209,7 +213,8 @@ public class DatabaseLoader2 {
           E.add(newRow);
         } catch (Exception inner) {
           totalLinesSkipped++;
-          System.err.println("Skipping malformed line in E.csv. Line number: " + lineNumber + " Total lines skipped: " + totalLinesSkipped);
+          System.err.println("Skipping malformed line in E.csv. Line number: " + lineNumber + " " +
+                  "Total lines skipped: " + totalLinesSkipped);
         }
       }
       System.out.println("Finished loading data to E");
@@ -238,7 +243,8 @@ public class DatabaseLoader2 {
           F.add(newRow);
         } catch (Exception inner) {
           totalLinesSkipped++;
-          System.err.println("Skipping malformed line in F.csv. Line number: " + lineNumber + " Total lines skipped: " + totalLinesSkipped);
+          System.err.println("Skipping malformed line in F.csv. Line number: " + lineNumber + " " +
+                  "Total lines skipped: " + totalLinesSkipped);
         }
       }
       System.out.println("Finished loading data to F");

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.example.diamondhardenedjoins;
+package org.example.diamondhardenedjoins.custom_benchmark1;
 
 import org.apache.calcite.DataContext;
 import org.apache.calcite.jdbc.CalciteSchema;
@@ -30,21 +30,21 @@ import org.apache.calcite.sql.type.SqlTypeName;
 
 import java.util.List;
 
-public class SchemaBuilder2 {
-  private static SchemaBuilder2 schemaBuilder;
+public class SchemaBuilder {
+  private static SchemaBuilder schemaBuilder;
   private RelDataTypeFactory typeFactory;
   private CalciteSchema schema;
 
-  private SchemaBuilder2() throws Exception {
+  private SchemaBuilder() throws Exception {
     System.out.println("Loading the CSV files into ArrayLists...");
-    DatabaseLoader2 databaseLoader = DatabaseLoader2.getInstance();
+    DatabaseLoader databaseLoader = DatabaseLoader.getInstance();
     System.out.println("Building the database schema...");
     buildSchema(databaseLoader);
   }
 
-  public static SchemaBuilder2 getInstance() throws Exception {
+  public static SchemaBuilder getInstance() throws Exception {
     if (schemaBuilder == null) {
-      schemaBuilder = new SchemaBuilder2();
+      schemaBuilder = new SchemaBuilder();
       return schemaBuilder;
     }
     return schemaBuilder;
@@ -58,7 +58,7 @@ public class SchemaBuilder2 {
     return schema;
   }
 
-  private void buildSchema(DatabaseLoader2 databaseLoader) {
+  private void buildSchema(DatabaseLoader databaseLoader) {
     typeFactory = new JavaTypeFactoryImpl();
     schema = CalciteSchema.createRootSchema(true);
 

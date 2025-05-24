@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.example.diamondhardenedjoins;
+package org.example.diamondhardenedjoins.JOB;
 
 import org.apache.calcite.DataContext;
 import org.apache.calcite.jdbc.CalciteSchema;

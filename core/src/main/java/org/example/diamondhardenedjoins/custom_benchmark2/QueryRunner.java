@@ -15,14 +15,13 @@
  * limitations under the License.
  */
 
-package org.example.diamondhardenedjoins;
+package org.example.diamondhardenedjoins.custom_benchmark2;
 
 import org.apache.calcite.DataContext;
 import org.apache.calcite.adapter.java.JavaTypeFactory;
 import org.apache.calcite.config.CalciteConnectionConfig;
 import org.apache.calcite.config.CalciteConnectionConfigImpl;
 import org.apache.calcite.config.CalciteConnectionProperty;
-import org.apache.calcite.config.CalciteSystemProperty;
 import org.apache.calcite.interpreter.BindableConvention;
 import org.apache.calcite.interpreter.BindableRel;
 import org.apache.calcite.interpreter.Bindables;
@@ -51,14 +50,7 @@ import org.apache.calcite.sql2rel.StandardConvertletTable;
 import com.google.common.collect.ImmutableList;
 
 import java.io.*;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Properties;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.*;
 
 public class QueryRunner {
   static final List<RelOptRule> BASE_RULES =
@@ -92,7 +84,7 @@ public class QueryRunner {
 //          CoreRules.SAMPLE_TO_FILTER,
 //          CoreRules.FILTER_SAMPLE_TRANSPOSE,
 //          CoreRules.FILTER_WINDOW_TRANSPOSE
-          );
+      );
   static final List<RelOptRule> ABSTRACT_RULES =
       ImmutableList.of(CoreRules.AGGREGATE_ANY_PULL_UP_CONSTANTS,
           CoreRules.UNION_PULL_UP_CONSTANTS,
@@ -138,7 +130,6 @@ public class QueryRunner {
           CoreRules.AGGREGATE_PROJECT_MERGE,
           CoreRules.CALC_REMOVE,
           CoreRules.SORT_REMOVE);
-  private static final String queryFilesFolder = "C:\\query_results\\";
   private static final RelOptTable.ViewExpander NOOP_EXPANDER = (rowType, queryString, schemaPath
       , viewPath) -> null;
   private static int successfulQueries = 0;
@@ -167,112 +158,17 @@ public class QueryRunner {
     return RelOptCluster.create(planner, new RexBuilder(factory));
   }
 
-  public static String getTimestampForFilename() {
-    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss");
-    return LocalDateTime.now().format(formatter);
-  }
-
-  public static void main(String[] args) throws Exception {
-    QueryRunner queryRunner = new QueryRunner();
-    BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-    final boolean DEFAULT_STD_OUT = true;
-    final boolean DEFAULT_EXEC_CHOICE = true;
-
-    while (true) {
-      System.out.print("sql> ");
-      String line = reader.readLine();
-
-      if (line == null || line.equalsIgnoreCase("exit")) {
-        break;
-      }
-
-      final String DEFAULT_OUTPUT_FILENAME = getTimestampForFilename() + "_output.txt";
-      successfulQueries = 0;
-
-      if (line.startsWith("\\s ")) {
-        // Pattern: \s <query> [--std-out 0|1] [--out <file>]
-        String commandBody = line.substring(3).trim();
-        String query = extractMainArg(commandBody);
-        boolean stdOut = extractFlagBool(commandBody, "--std-out", DEFAULT_STD_OUT);
-        boolean execChoice = extractFlagBool(commandBody, "--omit-exec", DEFAULT_EXEC_CHOICE);
-        String outFile = extractFlagValue(commandBody, "--out", DEFAULT_OUTPUT_FILENAME);
-
-        if (!query.isEmpty()) {
-          queryRunner.runQuery(query, queryFilesFolder + outFile, stdOut, execChoice);
-          appendToFile(queryFilesFolder + outFile, getHorizontalDivider() + successfulQueries +
-              " out of 1 queries successful", stdOut);
-        }
-      } else if (line.startsWith("\\f ")) {
-        // Pattern: \f <filename> [--std-out 0|1] [--out <file>]
-        String commandBody = line.substring(3).trim();
-        String filename = extractMainArg(commandBody);
-        boolean stdOut = extractFlagBool(commandBody, "--std-out", DEFAULT_STD_OUT);
-        boolean execChoice = extractFlagBool(commandBody, "--omit-exec", DEFAULT_EXEC_CHOICE);
-        String outFile = extractFlagValue(commandBody, "--out", DEFAULT_OUTPUT_FILENAME);
-
-        try (BufferedReader fileReader = new BufferedReader(new FileReader(filename))) {
-          StringBuilder sb = new StringBuilder();
-          String fileLine;
-          while ((fileLine = fileReader.readLine()) != null) {
-            sb.append(fileLine).append(" ");
-          }
-
-          String[] queries = sb.toString().split(";");
-          int numQueriesInFile = 0;
-          for (String q : queries) {
-            String cleanedQuery = q.trim().replaceAll("\\s+", " ");
-            if (!cleanedQuery.isEmpty()) {
-              numQueriesInFile++;
-              queryRunner.runQuery(cleanedQuery, queryFilesFolder + outFile, stdOut, execChoice);
-            }
-          }
-          appendToFile(queryFilesFolder + outFile, getHorizontalDivider() + successfulQueries +
-              " out of " + numQueriesInFile + " queries successful", stdOut);
-        } catch (IOException e) {
-          System.err.println("Error reading file: " + e.getMessage());
-        }
-      } else {
-        System.out.println("Unknown command. Use '\\s <query> [--std-out 0|1] [--omit-exec 0|1] " +
-            "[--out file]' or " +
-            "'\\f <filename> [--std-out 0|1] [--omit-exec 0|1] [--out file]'. Type 'exit' to quit" +
-            ".");
-      }
-    }
-  }
-
-  // Extracts the main argument before the first flag (used for query or filename)
-  private static String extractMainArg(String input) {
-    int flagStart = input.indexOf(" --");
-    return (flagStart == -1 ? input : input.substring(0, flagStart)).trim();
-  }
-
-  // Extracts a boolean flag like --std-out 0|1
-  private static boolean extractFlagBool(String input, String flag, boolean defaultValue) {
-    Pattern pattern = Pattern.compile(flag + "\\s+(\\d+)");
-    Matcher matcher = pattern.matcher(input);
-    if (matcher.find()) {
-      return !matcher.group(1).equals("0");
-    }
-    return defaultValue;
-  }
-
-  // Extracts a string value flag like --out <file>
-  private static String extractFlagValue(String input, String flag, String defaultValue) {
-    Pattern pattern = Pattern.compile(flag + "\\s+(\\S+)");
-    Matcher matcher = pattern.matcher(input);
-    if (matcher.find()) {
-      return matcher.group(1);
-    }
-    return defaultValue;
-  }
-
   private static String getHorizontalDivider() {
     return
         "\n------------------------------------------------------------------------------------------------------------------\n";
   }
 
+  public static void setSuccessfulQueries(int successfulQueries) {
+    QueryRunner.successfulQueries = successfulQueries;
+  }
+
   public void runQuery(String sqlQuery, String outputFilename, boolean printToStdOutput,
-      boolean omitExecution) {
+      boolean omitExecution, String optimization) {
     try {
       appendToFile(outputFilename, getHorizontalDivider() + "[SQL Query]\n" + sqlQuery,
           printToStdOutput);
@@ -323,9 +219,17 @@ public class QueryRunner {
       planner.setRoot(logPlan);
       BindableRel phyPlan = (BindableRel) planner.findBestExp();
 
-      appendToFile(outputFilename, RelOptUtil.dumpPlan("\n[Physical plan]", phyPlan,
-          SqlExplainFormat.TEXT,
-          SqlExplainLevel.NON_COST_ATTRIBUTES), printToStdOutput);
+      if (Objects.equals(optimization, "normal")) {
+        appendToFile(outputFilename, RelOptUtil.dumpPlan("\n[Physical plan]", phyPlan,
+            SqlExplainFormat.TEXT,
+            SqlExplainLevel.NON_COST_ATTRIBUTES), printToStdOutput);
+      } else if (Objects.equals(optimization, "LE-decomposition")) {
+        // TODO: modify the optimized tree by replacing the Joins with Lookup and Expand
+        throw new Exception("Lookup & Decomposition Optimization is not implemented!");
+      } else {
+        throw new Exception("No such optimization method available (use 'normal' or " +
+            "'LE-decomposition'");
+      }
 
       if (!omitExecution) {
         appendToFile(outputFilename, "\n[Output]", printToStdOutput);
@@ -340,6 +244,10 @@ public class QueryRunner {
           printToStdOutput);
       // e.printStackTrace();
     }
+  }
+
+  public static int getSuccessfulQueries() {
+    return successfulQueries;
   }
 
   private void addRulesToPlanner(RelOptPlanner planner) {

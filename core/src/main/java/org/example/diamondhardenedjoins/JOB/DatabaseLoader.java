@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.example.diamondhardenedjoins;
+package org.example.diamondhardenedjoins.JOB;
 
 import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;
