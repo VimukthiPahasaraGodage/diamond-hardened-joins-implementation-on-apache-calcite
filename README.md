@@ -20,9 +20,9 @@ limitations under the License.
 # Implementing Diamond Hardened Joins in Apache Calcite
 
 ## Architecture
+![L E Arch](https://github.com/user-attachments/assets/48fc92d9-9599-480b-aea9-8ac5eca11a17)
 
 The code for Python Query Execution Engine can be found here: https://github.com/VimukthiPahasaraGodage/diamond-hardened-joins-implementation-benchmark
-![Uploading L&E Arch..png…]()
 
 ## Usage
 
