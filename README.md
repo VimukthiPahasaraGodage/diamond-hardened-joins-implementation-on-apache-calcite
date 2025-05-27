@@ -22,6 +22,7 @@ limitations under the License.
 ## Architecture
 
 The code for Python Query Execution Engine can be found here: https://github.com/VimukthiPahasaraGodage/diamond-hardened-joins-implementation-benchmark
+![Uploading L&E Arch..png…]()
 
 ## Usage
 
